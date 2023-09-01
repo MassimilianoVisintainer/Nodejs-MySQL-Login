@@ -1,13 +1,19 @@
 const express = require('express')
+const path = require('path')
 const mysql = require("mysql")
+const dotenv = require("dotenv")
+
+dotenv.config({
+    path: './.env'
+});
 
 const app = express()
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nodejs-login'
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE
 });
 
 db.connect((error) => {
@@ -19,8 +25,17 @@ db.connect((error) => {
 })
 
 
+const publicDirectoty = path.join(__dirname, './public') // Define where it is my css
+app.use(express.static(publicDirectoty)) // Use the files included in the public directory 
+
+app.set('view engine', 'hbs');
+
 app.get('/', (req,res) => {
-    res.send('ciao')
+    res.render('index')
+})
+
+app.get('/register', (req,res) => {
+    res.render('register')
 })
 
 app.listen(3000, ()=>{
