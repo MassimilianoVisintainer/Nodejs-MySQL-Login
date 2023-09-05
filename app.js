@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const mysql = require("mysql")
 const dotenv = require("dotenv")
+const cookieParser = require("cookie-parser");
 
 dotenv.config({
     path: './.env'
@@ -17,27 +18,28 @@ const db = mysql.createConnection({
 });
 
 db.connect((error) => {
-    if(error) {
+    if (error) {
         console.log(error);
     } else {
         console.log("MYSQL connected...");
     }
 })
 
-
+app.use(cookieParser())
 const publicDirectoty = path.join(__dirname, './public') // Define where it is my css
 app.use(express.static(publicDirectoty)) // Use the files included in the public directory 
 
+// Parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded({ extended: false }))
+// Parse JSON bodies (as sent by API Clients)
+app.use(express.json());
+
 app.set('view engine', 'hbs');
 
-app.get('/', (req,res) => {
-    res.render('index')
-})
+// Define routes
+app.use('/', require('./routes/pages.js'))
+app.use('/auth', require('./routes/auth'))
 
-app.get('/register', (req,res) => {
-    res.render('register')
-})
-
-app.listen(3000, ()=>{
+app.listen(3000, () => {
     console.log('Server started on 300')
 })
